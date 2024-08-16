@@ -32,7 +32,7 @@ function isTypeReference(ty: ts.Type): ty is ts.TypeReference {
   return 'typeArguments' in ty;
 }
 
-function tsTypeToBril(tsType: ts.Type, checker: ts.TypeChecker): bril.Type {
+function tsTypeToBril(node: tsNode, tsType: ts.Type, checker: ts.TypeChecker): bril.Type {
   if (tsType.flags & (ts.TypeFlags.Number | ts.TypeFlags.NumberLiteral)) {
     return "float";
   } else if (tsType.flags &
@@ -43,15 +43,15 @@ function tsTypeToBril(tsType: ts.Type, checker: ts.TypeChecker): bril.Type {
     return "int";
   } else if (isTypeReference(tsType) && tsType.symbol && tsType.symbol.name === "Pointer") {
     const params = checker.getTypeArguments(tsType);
-    return { ptr: tsTypeToBril(params[0], checker) };
+    return { ptr: tsTypeToBril(node, params[0], checker) };
   } else {
-    throw "unimplemented type " + checker.typeToString(tsType);
+    throw "unimplemented type " + checker.typeToString(tsType) + " for node " + node.getText();
   }
 }
 
 function brilType(node: ts.Node, checker: ts.TypeChecker): bril.Type {
   let tsType = checker.getTypeAtLocation(node);
-  return tsTypeToBril(tsType, checker);
+  return tsTypeToBril(node, tsType, checker);
 }
 
 /**
