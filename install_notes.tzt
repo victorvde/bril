@@ -1,0 +1,17 @@
+python -m venv .venv
+. .ven/bin/activate
+
+pip install flit
+cd bril-txt
+flit install -s
+cd ..
+
+pacman -S deno
+deno install brilck.ts --root .venv --allow-all
+deno install brili.ts --root .venv --allow-all
+deno install ts2bril.ts --root .venv --allow-all
+
+
+
+
+"source file not found" -> extension was ,ts instead of .ts
