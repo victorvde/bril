@@ -1,0 +1,40 @@
+@main {
+  v0: int = const 20;
+  r: int = call @fibonacci v0;
+  r: int = id r;
+  v1: int = id r;
+  print v1;
+  v2: int = const 0;
+}
+@fibonacci(x: int): int {
+  v0: int = const 0;
+  acc: int = id v0;
+  v1: int = const 0;
+  prev: int = id v1;
+  v2: int = const 1;
+  cur: int = id v2;
+  v4: int = const 0;
+  i: int = id v4;
+.for.cond.3:
+  v5: int = id i;
+  v6: int = id x;
+  v7: bool = lt v5 v6;
+  br v7 .for.body.3 .for.end.3;
+.for.body.3:
+  v8: int = id prev;
+  v9: int = id cur;
+  v10: int = add v8 v9;
+  temp: int = id v10;
+  v11: int = id cur;
+  prev: int = id v11;
+  v12: int = id temp;
+  cur: int = id v12;
+  v13: int = id i;
+  v14: int = const 1;
+  v15: int = add v13 v14;
+  i: int = id v15;
+  jmp .for.cond.3;
+.for.end.3:
+  v16: int = id prev;
+  ret v16;
+}
