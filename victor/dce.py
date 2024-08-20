@@ -45,7 +45,8 @@ def local_reassignment_dce(bb):
         if not "dest" in i:
             continue
         for a in i.get("args", []):
-            del unused_dests[a]
+            if a in unused_dests:
+                del unused_dests[a]
         d = i["dest"]
         if d in unused_dests:
             killed.append(unused_dests[d])
