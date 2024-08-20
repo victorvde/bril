@@ -6,9 +6,15 @@ def prune_unused_results(f):
     for i in f["instrs"]:
         used_results |= set(i.get("args", []))
 
+    instrs = []
+    for i in f["instrs"]:
+        if "dest" in i and i["dest"] not in used_results:
+            continue
+        instrs.append(i)
+
     return {
         **f,
-        "instrs": [i for i in f["instrs"] if "dest" not in i or i["dest"] in used_results],
+        "instrs": instrs,
     }
 
 def process_function(f):
@@ -25,8 +31,8 @@ def process_function(f):
 
 data = json.load(sys.stdin)
 r = {
+    **data,
     "functions": [process_function(x) for x in data["functions"]],
-    **data
 }
 json.dump(r, sys.stdout, indent=4)
 
