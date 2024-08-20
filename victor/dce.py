@@ -17,13 +17,64 @@ def prune_unused_results(f):
         "instrs": instrs,
     }
 
+def basic_blocks(f):
+    bbs = []
+    current_bb = []
+
+    def finalize():
+        nonlocal current_bb
+        if current_bb:
+            bbs.append(current_bb)
+        current_bb = []
+
+    for i in f["instrs"]:
+        if "label" in i:
+            finalize()
+            current_bb.append(i)
+        else:
+            current_bb.append(i)
+            if i["op"] in  ["jmp", "br", "ret"]:
+                finalize()
+    finalize()
+    return bbs
+
+def local_reassignment_dce(bb):
+    unused_dests = {}
+    killed = []
+    for j, i in enumerate(bb):
+        if not "dest" in i:
+            continue
+        for a in i.get("args", []):
+            del unused_dests[a]
+        d = i["dest"]
+        if d in unused_dests:
+            killed.append(unused_dests[d])
+        unused_dests[d] = j
+
+    new_bb = []
+    for j, i in enumerate(bb):
+        if j in killed:
+            continue
+        new_bb.append(i)
+
+    return new_bb
+
+def bb_dce(f):
+    bbs = basic_blocks(f)
+    instrs = []
+    for bb in bbs:
+        instrs += local_reassignment_dce(bb)
+    return {
+        **f,
+        "instrs": instrs,
+    }
+
 def process_function(f):
     prev_f = f
     while True:
         new_f = prev_f
         new_f = prune_unused_results(new_f)
-        # bbs = basic_blocks(new_f)
-        # new_f = local_reassignment_dce(new_f, bbs)
+        new_f = bb_dce(new_f)
         if prev_f == new_f:
             break
         prev_f = new_f
