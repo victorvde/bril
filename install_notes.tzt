@@ -16,3 +16,5 @@ deno install ts2bril.ts --root .venv --allow-all
 
 "source file not found" -> extension was ,ts instead of .ts
 brench benchmarks/*.bril -> benchmarks/**/*.bril
+
+SSA + somple dce = better dce
